@@ -1,0 +1,6 @@
+# SNAKE
+Refactor - make segments a class, fix snake implementation
+Object oriented: example objects are snake, board, game
+add pause function
+make high score persistent
+make prettier - e.g. add border
