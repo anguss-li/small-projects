@@ -27,19 +27,6 @@ class SnakePart(GamePart):
         self.goto(x_pos, y_pos)
         self.direction = "stop"
 
-    def get_direction(self):
-        '''
-        Returns: string, the current value of self.get_direction()
-        '''
-        return self.direction
-
-    def set_direction(self, direction):
-        '''
-        direction: string, one of "up", "down", "left", "right" and "stop"
-        Returns: None, setting self.get_direction() to input
-        '''
-        self.direction = direction
-
 
 class Snake(list):
     def __init__(self):
@@ -74,9 +61,7 @@ class Snake(list):
 
     def set_direction(self, direction):
         '''
-        direction: string, one of "up", "down", "left", "right" and "stop"; note
-        this cannot be the opposite of self.get_direction(), e.g. if the latter
-        is "right", direction can't be "left".
+        direction: string, one of "up", "down", "left", "right" and "stop"
         Returns: None, setting self.get_direction() to input
         '''
         self.direction = direction
@@ -161,18 +146,21 @@ class Food(GamePart):
         axes respectively.
         Returns: None, randomly moving Food object to location on game board.
         '''
-        x = random.randint(-(x_limit), x_limit)
-        y = random.randint(-(y_limit), y_limit)
-        self.goto(x, y)
+        x_pos = random.randint(-(x_limit), x_limit)
+        y_pos = random.randint(-(y_limit), y_limit)
+        self.goto(x_pos, y_pos)
 
 
 class ScoreCounter(GamePart):
-    def __init__(self, x_pos, y_pos):
+    def __init__(self, font, x_pos, y_pos):
         '''
         Dummy object used by Board. Used to write Board.score and 
         Board.high_score on screen.
+        
+        font: string, valid font in turtle.
         '''
         super().__init__(shape="square", color="black")
+        self.font = font
         self.hideturtle()
         self.goto(x_pos, y_pos)
 
@@ -184,17 +172,18 @@ class ScoreCounter(GamePart):
         '''
         self.clear()
         self.write("Score: {} High Score: {}".format(score, high_score),
-                   align="center", font=("Courier", 24, "normal"))
+                   align="center", font=(self.font, 22, "normal"))
 
 
 class Board(_Screen):
-    def __init__(self, title, color, width, height):
+    def __init__(self, title, color, width, height, font):
         '''
         Implements game window as well as elements not controlled by the user.
         
         title: string, text to be displayed as window title
         color: string, valid turtle color to be used as background
-        width, length: integers, width and height in pixels respectively
+        width, height: integers, width and height in pixels respectively
+        font: string, valid font in turtle to be used for writing
         '''
         super().__init__()
         TurtleScreen.__init__(self, Board._canvas)
@@ -207,7 +196,7 @@ class Board(_Screen):
         self.food = Food()
         self.score = 0
         self.high_score = 0
-        self.score_counter = ScoreCounter(0, (height / 2) - 40)
+        self.score_counter = ScoreCounter(font, 0, (height / 2) - 40)
 
     def get_score(self):
         '''
@@ -250,7 +239,7 @@ class Board(_Screen):
 DELAY = 0.125
 
 # Window Setup
-board = Board("Angus' Snake Game", "MintCream", 800, 800)
+board = Board("Angus' Snake Game", "MintCream", 800, 800, "Courier")
 x_limit = (board.window_width() / 2) - 10
 y_limit = (board.window_height() / 2) - 10
 food = board.food
@@ -298,10 +287,8 @@ def main():
         for part in range(2, len(snake)):
             if snake[part].distance(head) < 20:
                 game_over()
-        has_snake_collided = (head.xcor() > x_limit or 
-                              head.xcor() < -x_limit or
-                              head.ycor() > y_limit or 
-                              head.ycor() < -y_limit)
+        has_snake_collided = (head.xcor() > x_limit or head.xcor() < -x_limit or
+                              head.ycor() > y_limit or head.ycor() < -y_limit)
         if has_snake_collided:
             game_over()
 
