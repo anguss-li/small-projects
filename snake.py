@@ -1,13 +1,13 @@
 import random
 import time
-from turtle import Turtle, TurtleScreen, _Screen, hideturtle
+from turtle import Turtle, TurtleScreen, _Screen
 
 
 class GamePart(Turtle):
     def __init__(self, shape, color):
         '''
-        Used for interactive objects in game. Inherited by SnakePart, 
-        ScoreCounter and Food classes.
+        Used for interactive objects in game. Inherited by classes SnakePart, 
+        ScoreCounter and Food.
         '''
         super().__init__()
         self.speed(0)
@@ -53,33 +53,20 @@ class Snake(list):
         self[index].hideturtle()
         del self[index]
 
-    def get_direction(self):
-        '''
-        Returns: string, the current value of self.get_direction()
-        '''
-        return self.direction
-
-    def set_direction(self, direction):
-        '''
-        direction: string, one of "up", "down", "left", "right" and "stop"
-        Returns: None, setting self.get_direction() to input
-        '''
-        self.direction = direction
-
     def move(self):
         '''
         Returns: None, setting movement direction of the snake according to
-        self.get_direction()
+        self.direction
         '''
         y_pos = self[0].ycor()  # y coordinate of the turtle
         x_pos = self[0].xcor()  # x coordinate of the turtle
-        if self.get_direction() == "up":
+        if self.direction == "up":
             y_pos += 20
-        elif self.get_direction() == "down":
+        elif self.direction == "down":
             y_pos -= 20
-        elif self.get_direction() == "right":
+        elif self.direction == "right":
             x_pos += 20
-        elif self.get_direction() == "left":
+        elif self.direction == "left":
             x_pos -= 20
         self.add_part(x_pos, y_pos)
         self.delete_part(-1)
@@ -89,52 +76,52 @@ class Snake(list):
         Returns: None, setting direction of the head to "up" if not currently 
         "down"
         '''
-        if self.get_direction() != "down":
-            self.set_direction("up")
+        if self.direction != "down":
+            self.direction = "up"
 
     def go_down(self):
         '''
         Returns: None, setting direction of the head to "down" if not currently 
         "up"
         '''
-        if self.get_direction() != "up":
-            self.set_direction("down")
+        if self.direction != "up":
+            self.direction = "down"
 
     def go_right(self):
         '''
         Returns: None, setting direction of the head to "right" if not currently 
         "left"
         '''
-        if self.get_direction() != "left":
-            self.set_direction("right")
+        if self.direction != "left":
+            self.direction = "right"
 
     def go_left(self):
         '''
         Returns: None, setting direction of the head to "left" if not currently 
         "right"
         '''
-        if self.get_direction() != "right":
-            self.set_direction("left")
+        if self.direction != "right":
+            self.direction = "left"
 
     def reset(self):
         '''
         Returns: None, deleting every part of the snake besides self[0], 
         resetting position and setting direction to "stop".
         '''
-        for part in range(1, len(self) + 1):
+        for part in range(1, len(self)):
             try:
                 self.delete_part(part)
             except IndexError:
                 pass
         self[0].goto(0, 100)
-        self.set_direction("stop")
+        self.direction = "stop"
 
 
 class Food(GamePart):
     def __init__(self):
         '''
         Dummy object used by Board. When "eaten" by a snake, teleports to a
-        random location within x_limit and y_limit of game board.
+        random location within X_LIMIT and Y_LIMIT of game board.
         '''
         super().__init__(shape="circle", color="red")
         self.shapesize(0.50, 0.50)
@@ -198,50 +185,23 @@ class Board(_Screen):
         self.high_score = 0
         self.score_counter = ScoreCounter(font, 0, (height / 2) - 40)
 
-    def get_score(self):
-        '''
-        Returns: integer, value of self.score.
-        '''
-        return self.score
-
-    def set_score(self, score):
-        '''
-        score: integer, new game score
-        Returns: None, setting self.score to score.
-        '''
-        self.score = score
-
-    def get_high_score(self):
-        '''
-        Returns: integer, value of self.high_score.
-        '''
-        return self.high_score
-
-    def set_high_score(self, high_score):
-        '''
-        high_score: integer, new high score
-        Returns: None, setting self.high_score to score.
-        '''
-        self.high_score = high_score
-
     def change_score(self, score_change):
         '''
         score_change: integer, number by which self.score will be modified
         Returns: new value of score, as well as a new high score if new score is 
         higher than the previous high score
         '''
-        new_score = self.get_score() + score_change
-        self.set_score(new_score)
-        if new_score > self.get_high_score():
-            self.set_high_score(new_score)
+        self.score += score_change
+        if self.score > self.high_score:
+            self.high_score = self.score
 
 
 DELAY = 0.125
 
 # Window Setup
 board = Board("Angus' Snake Game", "MintCream", 800, 800, "Courier")
-x_limit = (board.window_width() / 2) - 10
-y_limit = (board.window_height() / 2) - 10
+X_LIMIT = (board.window_width() / 2) - 10
+Y_LIMIT = (board.window_height() / 2) - 10
 food = board.food
 score_counter = board.score_counter
 
@@ -262,7 +222,7 @@ def game_over():
     '''
     time.sleep(1)
     snake.reset()
-    board.change_score(-(board.get_score()))
+    board.change_score(-(board.score))
     food.goto(0, 0)
 
 
@@ -272,7 +232,7 @@ def main():
     '''
     while True:
         board.update()
-        score_counter.write_score(board.get_score(), board.get_high_score())
+        score_counter.write_score(board.score, board.high_score)
         snake.move()
         time.sleep(DELAY)
         head = snake[0]
@@ -280,15 +240,16 @@ def main():
             # Increase score, check for high score increase
             board.change_score(10)
             # Add a segment
-            x_pos, y_pos = food.xcor(), food.ycor()
-            snake.add_part(x_pos, y_pos)
+            food_x, food_y = food.xcor(), food.ycor()
+            snake.add_part(food_x, food_y)
             # Move food
-            food.teleport(x_limit - 20, y_limit - 20)
-        for part in range(2, len(snake)):
-            if snake[part].distance(head) < 20:
+            food.teleport(X_LIMIT - 20, Y_LIMIT - 20)
+        for part in range(3, len(snake)):
+            if snake[part].distance(head) < 25:
                 game_over()
-        has_snake_collided = (head.xcor() > x_limit or head.xcor() < -x_limit or
-                              head.ycor() > y_limit or head.ycor() < -y_limit)
+        head_x, head_y = head.xcor(), head.ycor()
+        has_snake_collided = (head_x > X_LIMIT or head_x < -X_LIMIT or
+                              head_y > Y_LIMIT or head_y < -Y_LIMIT)
         if has_snake_collided:
             game_over()
 
