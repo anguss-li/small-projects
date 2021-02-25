@@ -1,6 +1,7 @@
 # SNAKE
-Refactor - make segments a class, fix snake implementation
-Object oriented: example objects are snake, board, game
+add game object that incorporates main() and game_over()
+fix snake movement by dehardcoding distance snake moves (i.e. calculating it from screen size for a grid effect)
 add pause function
 make high score persistent
 make prettier - e.g. add border
+make themes selectable
