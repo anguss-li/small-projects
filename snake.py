@@ -15,6 +15,7 @@ class GamePart(Turtle):
         self.color(color)
         self.penup()
 
+
 class Food(GamePart):
     def __init__(self):
         '''
@@ -41,7 +42,7 @@ class ScoreCounter(GamePart):
         '''
         Dummy object used by Board. Used to write Board.score and 
         Board.high_score on screen.
-        
+
         font: string, valid font in turtle.
         '''
         super().__init__(shape="square", color="black")
@@ -56,7 +57,6 @@ class ScoreCounter(GamePart):
         '''
         high_score_record = open('high_score.txt', 'r')
         return int(float(high_score_record.read()))
-            
 
     def set_high_score(self, high_score):
         '''
@@ -93,7 +93,7 @@ class SnakePart(GamePart):
     def __init__(self, x_pos, y_pos):
         '''
         Dummy object used by snake.
-        
+
         x_pos, y_pos: integers, x and y coordinates respectively.
         '''
         super().__init__(shape="square", color="black")
@@ -194,7 +194,7 @@ class Board(_Screen):
     def __init__(self, title, color, width, height, font):
         '''
         Implements game window as well as elements not controlled by the user.
-        
+
         title: string, text to be displayed as window title
         color: string, valid turtle color to be used as background
         width, height: integers, width and height in pixels respectively
@@ -217,7 +217,7 @@ class Game(object):
         '''
         Used to implement main game functions, such as main loop and game over
         conditions.
-        
+
         title: string, text to be displayed as window title
         color: string, valid turtle color to be used as background
         width, height: integers, width and height in pixels respectively
