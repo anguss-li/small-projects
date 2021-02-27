@@ -101,8 +101,7 @@ class Board(_Screen):
         '''
         super().__init__()
         TurtleScreen.__init__(self, Board._canvas)
-        if Turtle._screen is None:
-            Turtle._screen = self
+        Turtle._screen = self
         self.title(title)
         self.bgcolor(color)
         self.setup(width=width, height=height)
