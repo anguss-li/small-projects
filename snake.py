@@ -1,4 +1,3 @@
-from array import ArrayType, array
 from random import randint
 from time import sleep
 from turtle import Turtle, TurtleScreen, _Screen
