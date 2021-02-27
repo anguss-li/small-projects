@@ -211,43 +211,6 @@ class Snake(list):
         if self.direction != "right":
             self.direction = "left"
 
-        elif self.direction == "left":
-            x_pos -= 20
-        self.add_part(x_pos, y_pos)
-        self.delete_part(-1)
-
-    def go_up(self):
-        '''
-        Returns: None, setting direction of the head to "up" if not currently 
-        "down"
-        '''
-        if self.direction != "down":
-            self.direction = "up"
-
-    def go_down(self):
-        '''
-        Returns: None, setting direction of the head to "down" if not currently 
-        "up"
-        '''
-        if self.direction != "up":
-            self.direction = "down"
-
-    def go_right(self):
-        '''
-        Returns: None, setting direction of the head to "right" if not currently 
-        "left"
-        '''
-        if self.direction != "left":
-            self.direction = "right"
-
-    def go_left(self):
-        '''
-        Returns: None, setting direction of the head to "left" if not currently 
-        "right"
-        '''
-        if self.direction != "right":
-            self.direction = "left"
-
 
 class Game(object):
     def __init__(self, title, color, width, height, font):
