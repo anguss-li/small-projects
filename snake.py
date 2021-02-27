@@ -89,6 +89,28 @@ class ScoreCounter(GamePart):
                    align="center", font=(self.font, 22, "normal"))
 
 
+class Board(_Screen):
+    def __init__(self, title, color, width, height, font):
+        '''
+        Implements game window as well as elements not controlled by the user.
+
+        title: string, text to be displayed as window title
+        color: string, valid turtle color to be used as background
+        width, height: integers, width and height in pixels respectively
+        font: string, valid font in turtle to be used for writing
+        '''
+        super().__init__()
+        TurtleScreen.__init__(self, Board._canvas)
+        if Turtle._screen is None:
+            Turtle._screen = self
+        self.title(title)
+        self.bgcolor(color)
+        self.setup(width=width, height=height)
+        self.tracer(0)
+        self.food = Food()
+        self.score_counter = ScoreCounter(font, 0, (height / 2) - 40)
+
+
 class SnakePart(GamePart):
     def __init__(self, x_pos, y_pos):
         '''
@@ -189,27 +211,42 @@ class Snake(list):
         if self.direction != "right":
             self.direction = "left"
 
+        elif self.direction == "left":
+            x_pos -= 20
+        self.add_part(x_pos, y_pos)
+        self.delete_part(-1)
 
-class Board(_Screen):
-    def __init__(self, title, color, width, height, font):
+    def go_up(self):
         '''
-        Implements game window as well as elements not controlled by the user.
+        Returns: None, setting direction of the head to "up" if not currently 
+        "down"
+        '''
+        if self.direction != "down":
+            self.direction = "up"
 
-        title: string, text to be displayed as window title
-        color: string, valid turtle color to be used as background
-        width, height: integers, width and height in pixels respectively
-        font: string, valid font in turtle to be used for writing
+    def go_down(self):
         '''
-        super().__init__()
-        TurtleScreen.__init__(self, Board._canvas)
-        if Turtle._screen is None:
-            Turtle._screen = self
-        self.title(title)
-        self.bgcolor(color)
-        self.setup(width=width, height=height)
-        self.tracer(0)
-        self.food = Food()
-        self.score_counter = ScoreCounter(font, 0, (height / 2) - 40)
+        Returns: None, setting direction of the head to "down" if not currently 
+        "up"
+        '''
+        if self.direction != "up":
+            self.direction = "down"
+
+    def go_right(self):
+        '''
+        Returns: None, setting direction of the head to "right" if not currently 
+        "left"
+        '''
+        if self.direction != "left":
+            self.direction = "right"
+
+    def go_left(self):
+        '''
+        Returns: None, setting direction of the head to "left" if not currently 
+        "right"
+        '''
+        if self.direction != "right":
+            self.direction = "left"
 
 
 class Game(object):
