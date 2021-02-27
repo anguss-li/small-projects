@@ -241,6 +241,7 @@ class Game(object):
         Returns: None, setting up main game loop.
         '''
         board = self.board
+        snake = self.snake
         board.listen()
         board.onkey(snake.go_up, "w")
         board.onkey(snake.go_down, "s")
@@ -248,7 +249,6 @@ class Game(object):
         board.onkey(snake.go_left, "a")
         x_limit = (board.window_width() / 2) - 10
         y_limit = (board.window_height() / 2) - 10
-        snake = self.snake
         score_counter = board.score_counter
         food = board.food
         while True:
