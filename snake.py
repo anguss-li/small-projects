@@ -1,11 +1,11 @@
+from functools import partial
 from random import randint
 from time import sleep
 from turtle import Turtle, TurtleScreen, _Screen
-from functools import partial
 
 
 class GamePart(Turtle):
-    def __init__(self, shape, color):
+    def __init__(self, shape: str, color: str):
         '''
         Used for interactive objects in game. Inherited by classes SnakePart, 
         ScoreCounter and Food.
@@ -30,17 +30,15 @@ class Food(GamePart):
         self.shapesize(0.50, 0.50)
         self.goto(0, 0)
 
-    def teleport(self, x_limit, y_limit) -> None:
+    def teleport(self, x_limit: int, y_limit: int) -> None:
         '''
         Randomly moves self to location on game board.
         '''
-        x_pos = randint(-(x_limit), x_limit)
-        y_pos = randint(-(y_limit), y_limit)
-        self.goto(x_pos, y_pos)
+        self.goto(randint(-(x_limit), x_limit), randint(-(y_limit), y_limit))
 
 
 class ScoreCounter(GamePart):
-    def __init__(self, font, x_pos, y_pos):
+    def __init__(self, font: str, x_pos: int, y_pos: int):
         '''
         Dummy object used to write Board.score and Board.high_score on screen.
 
@@ -59,7 +57,7 @@ class ScoreCounter(GamePart):
         high_score_record = open('high_score.txt', 'r')
         return int(high_score_record.read())
 
-    def set_high_score(self, high_score) -> None:
+    def set_high_score(self, high_score: int) -> None:
         '''
         Sets self.high_score to input.
         '''
@@ -75,10 +73,10 @@ class ScoreCounter(GamePart):
         '''
         score, high_score = self.score, self.get_high_score()
         self.clear()
-        self.write("Score: {} High Score: {}".format(score, high_score),
+        self.write(f"Score: {score} High Score: {high_score}",
                    align="center", font=(self.font, 22, "normal"))
 
-    def change_scores(self, score_change) -> None:
+    def change_scores(self, score_change: int) -> None:
         '''
         Update score, as well as the high score if the new score is higher.
 
@@ -92,7 +90,7 @@ class ScoreCounter(GamePart):
 
 
 class Board(_Screen):
-    def __init__(self, title, color, length, font):
+    def __init__(self, title: str, color: str, length: int, font: str):
         '''
         Implements game window as well as elements not controlled by the user.
 
@@ -109,11 +107,11 @@ class Board(_Screen):
         self.setup(width=length, height=length)
         self.tracer(0)
         self.food = Food()
-        self.score_counter = ScoreCounter(font, 0, (length / 2) - 40)
+        self.score_counter = ScoreCounter(font, 0, (length/2)-40)
 
 
 class SnakePart(GamePart):
-    def __init__(self, x_pos, y_pos):
+    def __init__(self, x_pos: int, y_pos: int):
         '''
         Dummy object used by snake.
 
