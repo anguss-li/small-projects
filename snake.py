@@ -1,6 +1,7 @@
 from random import randint
 from time import sleep
 from turtle import Turtle, TurtleScreen, _Screen
+from functools import partial
 
 
 class GamePart(Turtle):
@@ -77,7 +78,6 @@ class ScoreCounter(GamePart):
         self.write("Score: {} High Score: {}".format(score, high_score),
                    align="center", font=(self.font, 22, "normal"))
 
-
     def change_scores(self, score_change) -> None:
         '''
         Update score, as well as the high score if the new score is higher.
@@ -121,7 +121,6 @@ class SnakePart(GamePart):
         '''
         super().__init__(shape="square", color="black")
         self.goto(x_pos, y_pos)
-        self.direction = "stop"
 
 
 class Snake(list):
@@ -132,7 +131,7 @@ class Snake(list):
         '''
         super().__init__()
         self.head = SnakePart(0, 100)
-        self.direction = "stop"
+        self._direction = "stop"
 
     def reset(self) -> None:
         '''
@@ -142,12 +141,24 @@ class Snake(list):
             part.hideturtle()
         self.clear()
         self.head.goto(0, 100)
-        self.direction = "stop"
+
+    @property
+    def direction(self) -> str:
+        return self._direction
+
+    @direction.setter
+    def direction(self, direction: str) -> None:
+        is_legal = {"up": self.direction != "down",
+                    "down": self.direction != "up",
+                    "left": self.direction != "right",
+                    "right": self.direction != "left"}
+        if is_legal[direction]:
+            self._direction = direction
 
     def move(self, step: int) -> None:
         '''
         Sets movement direction of self according to self.direction.
-        
+
         step: number of pixels to move
         '''
         head_x, head_y = self.head.xcor(), self.head.ycor()
@@ -168,34 +179,6 @@ class Snake(list):
         elif self.direction == "left":
             head_x -= step
         self.head.goto(head_x, head_y)
-
-    def go_up(self) -> None:
-        '''
-        Sets direction of the head to "up" if not currently "down".
-        '''
-        if self.direction != "down":
-            self.direction = "up"
-
-    def go_down(self) -> None:
-        '''
-        Sets direction of the head to "down" if not currently "up".
-        '''
-        if self.direction != "up":
-            self.direction = "down"
-
-    def go_right(self) -> None:
-        '''
-        Sets direction of the head to "right" if not currently "left".
-        '''
-        if self.direction != "left":
-            self.direction = "right"
-
-    def go_left(self) -> None:
-        '''
-        Sets direction of the head to "left" if not currently "right".
-        '''
-        if self.direction != "right":
-            self.direction = "left"
 
 
 class Game(object):
@@ -231,21 +214,21 @@ class Game(object):
         Sets up main game loop.
         '''
         snake = self.snake
+        head = snake.head
         board = self.board
         score_counter = board.score_counter
         food = board.food
         board.listen()
-        board.onkey(snake.go_up, "w")
-        board.onkey(snake.go_down, "s")
-        board.onkey(snake.go_right, "d")
-        board.onkey(snake.go_left, "a")
+        board.onkey(partial(setattr, snake, "direction", "up"), "w")
+        board.onkey(partial(setattr, snake, "direction", "down"), "s")
+        board.onkey(partial(setattr, snake, "direction", "right"), "d")
+        board.onkey(partial(setattr, snake, "direction", "left"), "a")
         score_counter.write_score()
         step = 20
         x_limit, y_limit = (self.length/2) - step, (self.length/2) - step
         while True:
             board.update()
             snake.move(step)
-            head = snake.head
             if head.distance(food) < step:
                 score_counter.change_scores(10)
                 snake.append(SnakePart(x_limit+step*2, y_limit+step*2))
