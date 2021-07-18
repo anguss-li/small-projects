@@ -222,7 +222,7 @@ class Game(object):
         board.onkey(partial(setattr, snake, "direction", "right"), "d")
         board.onkey(partial(setattr, snake, "direction", "left"), "a")
         score_counter.write_score()
-        step = 20
+        step = self.length / 40
         x_limit, y_limit = (self.length/2) - step, (self.length/2) - step
         while True:
             board.update()
