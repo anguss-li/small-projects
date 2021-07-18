@@ -65,17 +65,6 @@ class ScoreCounter(GamePart):
         high_score_record = open('high_score.txt', 'w')
         high_score_record.write(str(high_score))
 
-    def change_scores(self, score_change) -> None:
-        '''
-        Update score, as well as the high score if the new score is higher.
-
-        score_change: number by which self.score will be modified
-        '''
-        high_score = self.get_high_score()
-        self.score += score_change
-        if self.score > high_score:
-            self.set_high_score(self.score)
-
     def write_score(self) -> None:
         '''
         Writes in text on board values of score and high_score.
@@ -87,6 +76,19 @@ class ScoreCounter(GamePart):
         self.clear()
         self.write("Score: {} High Score: {}".format(score, high_score),
                    align="center", font=(self.font, 22, "normal"))
+
+
+    def change_scores(self, score_change) -> None:
+        '''
+        Update score, as well as the high score if the new score is higher.
+
+        score_change: number by which self.score will be modified
+        '''
+        high_score = self.get_high_score()
+        self.score += score_change
+        if self.score > high_score:
+            self.set_high_score(self.score)
+        self.write_score()
 
 
 class Board(_Screen):
@@ -142,9 +144,11 @@ class Snake(list):
         self.head.goto(0, 100)
         self.direction = "stop"
 
-    def move(self) -> None:
+    def move(self, step: int) -> None:
         '''
         Sets movement direction of self according to self.direction.
+        
+        step: number of pixels to move
         '''
         head_x, head_y = self.head.xcor(), self.head.ycor()
 
@@ -156,13 +160,13 @@ class Snake(list):
             self[0].goto(head_x, head_y)
 
         if self.direction == "up":
-            head_y += 20
+            head_y += step
         elif self.direction == "down":
-            head_y -= 20
+            head_y -= step
         elif self.direction == "right":
-            head_x += 20
+            head_x += step
         elif self.direction == "left":
-            head_x -= 20
+            head_x -= step
         self.head.goto(head_x, head_y)
 
     def go_up(self) -> None:
@@ -206,7 +210,8 @@ class Game(object):
         font: valid font in turtle to be used for writing
         delay: time step in between actions in game
         '''
-        self.board = Board(title, color, length, font)
+        self.length = length
+        self.board = Board(title, color, self.length, font)
         self.snake = Snake()
         self.delay = delay
         self.score = 0
@@ -225,34 +230,31 @@ class Game(object):
         '''
         Sets up main game loop.
         '''
-        board = self.board
         snake = self.snake
+        board = self.board
+        score_counter = board.score_counter
+        food = board.food
         board.listen()
         board.onkey(snake.go_up, "w")
         board.onkey(snake.go_down, "s")
         board.onkey(snake.go_right, "d")
         board.onkey(snake.go_left, "a")
-        x_limit = (board.window_width() / 2) - 20
-        y_limit = (board.window_height() / 2) - 20
-        score_counter = board.score_counter
-        food = board.food
+        score_counter.write_score()
+        step = 20
+        x_limit, y_limit = (self.length/2) - step, (self.length/2) - step
         while True:
             board.update()
-            score_counter.write_score()
-            snake.move()
-            sleep(self.delay)
+            snake.move(step)
             head = snake.head
-            if head.distance(food) < 40:
+            if head.distance(food) < step:
                 score_counter.change_scores(10)
-                snake.append(SnakePart(x_limit+100, y_limit+100))
-                food.teleport(x_limit - 20, y_limit - 20)
-            head_x, head_y = head.xcor(), head.ycor()
-            is_head_on_board = (head_x > x_limit
-                                or head_x < -x_limit
-                                or head_y > y_limit
-                                or head_y < -y_limit)
-            if is_head_on_board or any(part.distance(head) < 20 for part in snake):
+                snake.append(SnakePart(x_limit+step*2, y_limit+step*2))
+                food.teleport(x_limit-step, y_limit-step)
+            is_head_on_board = (-x_limit < head.xcor() < x_limit
+                                and -y_limit < head.ycor() < y_limit)
+            if not is_head_on_board or any(part.distance(head) < step for part in snake):
                 self.game_over()
+            sleep(self.delay)
 
 
 if __name__ == '__main__':
