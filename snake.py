@@ -1,6 +1,6 @@
 from random import randint
 from time import sleep
-from tkinter.constants import N, NO
+from tkinter.constants import NO, N
 from turtle import Turtle, TurtleScreen, _Screen
 
 
@@ -81,7 +81,7 @@ class ScoreCounter(GamePart):
     def write_score(self) -> None:
         '''
         Writes in text on board values of score and high_score.
-        
+
         score: score of current game
         high_score: highest value of score over all previous games
         '''
@@ -158,7 +158,7 @@ class Snake(list):
         snake_ref = self.copy()
         for part in snake_ref:
             if snake_ref.index(part) != 0:
-                self.delete_part(part)  
+                self.delete_part(part)
         self[0].goto(0, 100)
         self.direction = "stop"
 
@@ -277,6 +277,7 @@ class Game(object):
                                   head_y > y_limit or head_y < -y_limit)
             if has_snake_collided:
                 self.game_over()
+
 
 if __name__ == '__main__':
     game = Game("Angus' Snake Game", "MintCream", 800, "Courier", 0.125)
