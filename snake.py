@@ -139,6 +139,7 @@ class Snake(list):
             part.hideturtle()
         self.clear()
         self.head.goto(0, 100)
+        self.direction = "stop"
 
     @property
     def direction(self) -> str:
@@ -149,7 +150,8 @@ class Snake(list):
         is_legal = {"up": self.direction != "down",
                     "down": self.direction != "up",
                     "left": self.direction != "right",
-                    "right": self.direction != "left"}
+                    "right": self.direction != "left",
+                    "stop": True}
         if is_legal[direction]:
             self._direction = direction
 
@@ -223,7 +225,7 @@ class Game(object):
         board.onkey(partial(setattr, snake, "direction", "left"), "a")
         score_counter.write_score()
         step = self.length / 40
-        x_limit, y_limit = (self.length/2) - step, (self.length/2) - step
+        x_limit, y_limit = self.length/2, self.length/2
         while True:
             board.update()
             snake.move(step)
