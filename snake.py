@@ -23,8 +23,8 @@ class GamePart(Turtle):
 class Food(GamePart):
     def __init__(self):
         '''
-        Dummy object used by Board. When "eaten" by a snake, teleports to a
-        random location within x_limit and y_limit of game board.
+        When "eaten" by a snake, teleports to a random location within x_limit 
+        and y_limit of game board.
         '''
         super().__init__(shape="circle", color="red")
         self.shapesize(0.50, 0.50)
@@ -32,7 +32,7 @@ class Food(GamePart):
 
     def teleport(self, x_limit: int, y_limit: int) -> None:
         '''
-        Randomly moves self to location on game board.
+        Randomly move self to location on game board.
         '''
         self.goto(randint(-(x_limit), x_limit), randint(-(y_limit), y_limit))
 
@@ -52,21 +52,21 @@ class ScoreCounter(GamePart):
 
     def get_high_score(self) -> int:
         '''
-        Returns value of high_score according to 'high_score.txt'.
+        Return value of high_score according to 'high_score.txt'.
         '''
         high_score_record = open('high_score.txt', 'r')
         return int(high_score_record.read())
 
     def set_high_score(self, high_score: int) -> None:
         '''
-        Sets self.high_score to input.
+        Set self.high_score to input.
         '''
         high_score_record = open('high_score.txt', 'w')
         high_score_record.write(str(high_score))
 
     def write_score(self) -> None:
         '''
-        Writes in text on board values of score and high_score.
+        Write in text values of score and high_score.
 
         score: score of current game
         high_score: highest value of score over all previous games
@@ -92,7 +92,7 @@ class ScoreCounter(GamePart):
 class Board(_Screen):
     def __init__(self, title: str, color: str, length: int, font: str):
         '''
-        Implements game window as well as elements not controlled by the user.
+        Implement game window as well as elements not controlled by the user.
 
         title: text to be displayed as window title
         color: valid turtle color to be used as background
@@ -106,8 +106,6 @@ class Board(_Screen):
         self.bgcolor(color)
         self.setup(width=length, height=length)
         self.tracer(0)
-        self.food = Food()
-        self.score_counter = ScoreCounter(font, 0, (length/2)-40)
 
 
 class SnakePart(GamePart):
@@ -131,16 +129,6 @@ class Snake(list):
         self.head = SnakePart(0, 100)
         self._direction = "stop"
 
-    def reset(self) -> None:
-        '''
-        Return self to default configuration.
-        '''
-        for part in self:
-            part.hideturtle()
-        self.clear()
-        self.head.goto(0, 100)
-        self.direction = "stop"
-
     @property
     def direction(self) -> str:
         return self._direction
@@ -157,7 +145,7 @@ class Snake(list):
 
     def move(self, step: int) -> None:
         '''
-        Sets movement direction of self according to self.direction.
+        Set movement direction of self according to self.direction.
 
         step: number of pixels to move
         '''
@@ -180,12 +168,21 @@ class Snake(list):
             head_x -= step
         self.head.goto(head_x, head_y)
 
+    def reset(self) -> None:
+        '''
+        Return self to default configuration.
+        '''
+        for part in self:
+            part.hideturtle()
+        self.clear()
+        self.head.goto(0, 100)
+        self.direction = "stop"
 
-class Game(object):
+
+class SnakeGame(object):
     def __init__(self, title: str, color: str, length: int, font: str, delay: float):
         '''
-        Used to implement main game functions, such as main loop and game over
-        conditions.
+        Implement main game functions and gameplay loop.
 
         title: text to be displayed as window title
         color: valid turtle color to be used as background
@@ -194,52 +191,61 @@ class Game(object):
         delay: time step in between actions in game
         '''
         self.length = length
-        self.board = Board(title, color, self.length, font)
-        self.snake = Snake()
         self.delay = delay
         self.score = 0
+        self.board = Board(title, color, length, font)
+        self.snake = Snake()
+        self.food = Food()
+        self.score_counter = ScoreCounter(font, 0, (length/2)-40)
+        self.step = self.length // 40
+        self.limit = self.length // 2
 
-    def game_over(self) -> None:
-        '''
-        Resets snake, score and food.
-        '''
-        sleep(1)
-        self.snake.reset()
-        self.board.score_counter.change_scores(
-            -(self.board.score_counter.score))
-        self.board.food.goto(0, 0)
-
-    def run(self) -> None:
-        '''
-        Sets up main game loop.
-        '''
-        snake = self.snake
-        head = snake.head
+    def initialize(self) -> None:
+        '''Create main game components'''
         board = self.board
-        score_counter = board.score_counter
-        food = board.food
         board.listen()
-        board.onkey(partial(setattr, snake, "direction", "up"), "w")
-        board.onkey(partial(setattr, snake, "direction", "down"), "s")
-        board.onkey(partial(setattr, snake, "direction", "right"), "d")
-        board.onkey(partial(setattr, snake, "direction", "left"), "a")
-        score_counter.write_score()
-        step = self.length / 40
-        x_limit, y_limit = self.length/2, self.length/2
+        board.onkey(partial(setattr, self.snake, "direction", "up"), "w")
+        board.onkey(partial(setattr, self.snake, "direction", "down"), "s")
+        board.onkey(partial(setattr, self.snake, "direction", "right"), "d")
+        board.onkey(partial(setattr, self.snake, "direction", "left"), "a")
+        self.score_counter.write_score()
+
+    def play(self) -> None:
+        '''Start game loop.'''
+
+        def win_points() -> None:
+            '''Account for food being eaten.'''
+            self.score_counter.change_scores(10)
+            temp_position = self.limit+self.step*2
+            self.snake.append(SnakePart(temp_position, temp_position))
+            self.food.teleport(self.limit, self.limit)
+
+        def is_pos_legal() -> None:
+            '''Check that snake is in bounds and is not eating itself'''
+            snake, head = self.snake, self.snake.head
+            step, limit = self.step, self.limit
+            is_eaten = any(part.distance(head) < step for part in snake)
+            is_in_bounds = all(-limit < coord < limit for coord in head.pos())
+            return not is_eaten and is_in_bounds
+
+        def game_over() -> None:
+            '''Reset snake, score and food.'''
+            sleep(1)
+            self.snake.reset()
+            self.score_counter.change_scores(-self.score_counter.score)
+            self.food.goto(0, 0)
+
         while True:
-            board.update()
-            snake.move(step)
-            if head.distance(food) < step:
-                score_counter.change_scores(10)
-                snake.append(SnakePart(x_limit+step*2, y_limit+step*2))
-                food.teleport(x_limit-step, y_limit-step)
-            is_head_on_board = (-x_limit < head.xcor() < x_limit
-                                and -y_limit < head.ycor() < y_limit)
-            if not is_head_on_board or any(part.distance(head) < step for part in snake):
-                self.game_over()
+            self.board.update()
+            self.snake.move(self.step)
+            if self.snake.head.distance(self.food) < self.step:
+                win_points()
+            if not is_pos_legal():
+                game_over()
             sleep(self.delay)
 
 
 if __name__ == '__main__':
-    game = Game("Angus' Snake Game", "MintCream", 800, "Courier", 0.125)
-    game.run()
+    game = SnakeGame("Angus' Snake Game", "MintCream", 800, "Courier", 0.125)
+    game.initialize()
+    game.play()
