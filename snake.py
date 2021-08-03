@@ -182,7 +182,13 @@ class ScoreCounter(GamePart):
 
 
 class SnakeGame(object):
-    def __init__(self, title: str, color: str, width: int, height: int, font: str, delay: float):
+    def __init__(self,
+                 title: str,
+                 color: str,
+                 font: str,
+                 width: int,
+                 height: int,
+                 delay: float):
         '''
         Implement main game functions and gameplay loop.
 
@@ -205,12 +211,17 @@ class SnakeGame(object):
 
     def initialize(self) -> None:
         '''Create main game components'''
+
+        def go(direction: str) -> callable:
+            '''Return direction setter function for snake.'''
+            return partial(setattr, self.snake, 'direction', direction)
+
         board = self.board
         board.listen()
-        board.onkey(partial(setattr, self.snake, 'direction', 'up'), 'w')
-        board.onkey(partial(setattr, self.snake, 'direction', 'down'), 's')
-        board.onkey(partial(setattr, self.snake, 'direction', 'right'), 'd')
-        board.onkey(partial(setattr, self.snake, 'direction', 'left'), 'a')
+        board.onkey(go('up'), 'w')
+        board.onkey(go('down'), 's')
+        board.onkey(go('right'), 'd')
+        board.onkey(go('left'), 'a')
         self.score_counter.display_score()
 
     def play(self) -> None:
@@ -227,7 +238,8 @@ class SnakeGame(object):
             '''Check that snake is in bounds and is not eating itself'''
             snake, head, step = self.snake, self.snake.head, self.step
             is_eaten = any(part.distance(head) < step for part in snake)
-            is_bounded = all(-l < p < l for p, l in zip(head.pos(), self.limits))
+            is_bounded = all(-l < p < l for p,
+                             l in zip(head.pos(), self.limits))
             return not is_eaten and is_bounded
 
         def game_over() -> None:
@@ -248,6 +260,11 @@ class SnakeGame(object):
 
 
 if __name__ == '__main__':
-    game = SnakeGame("Angus' Snake Game", 'MintCream', 800, 800, 'Courier', 0.125)
+    game = SnakeGame("Angus' Snake Game",
+                     'MintCream',
+                     'Courier',
+                     800,
+                     800,
+                     0.125)
     game.initialize()
     game.play()
