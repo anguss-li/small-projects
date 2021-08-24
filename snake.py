@@ -46,8 +46,7 @@ class Board(_Screen):
 
         title: text to be displayed as window title
         color: valid turtle color to be used as background
-        length: length of board in pixels
-        font: valid font in turtle to be used for writing
+        width, height: width and height of board in pixels respectively
         '''
         super().__init__()
         TurtleScreen.__init__(self, Board._canvas)
@@ -135,6 +134,7 @@ class ScoreCounter(GamePart):
         Dummy object used to write Board.score and Board.high_score on screen.
 
         font: valid font in turtle.
+        x_pos, y_pos: x and y coordinates of the center of the counter.
         '''
         super().__init__(shape='square', color='black')
         self.font = font
@@ -143,16 +143,12 @@ class ScoreCounter(GamePart):
         self.score = 0
 
     def get_high_score(self) -> int:
-        '''
-        Return value of high_score according to 'high_score.txt'.
-        '''
+        '''Return high score from 'high_score.txt'.'''
         with open('high_score.txt', 'r') as record:
             return int(record.read())
 
     def set_high_score(self, high_score: int) -> None:
-        '''
-        Set self.high_score to input.
-        '''
+        '''Set self.high_score to input.'''
         with open('high_score.txt', 'w') as record:
             record.write(str(high_score))
 
@@ -194,8 +190,8 @@ class SnakeGame(object):
 
         title: text to be displayed as window title
         color: valid turtle color to be used as background
-        length: how long the board should be in pixels
         font: valid font in turtle to be used for writing
+        width, height: how wide and long the board should be in pixels
         delay: time step in between actions in game
         '''
         self.width = width
