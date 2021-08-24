@@ -230,7 +230,7 @@ class SnakeGame(object):
             self.snake.append(SnakePart(temp_x, temp_y))
             self.food.teleport(self.limits)
 
-        def is_pos_legal() -> None:
+        def is_pos_legal() -> bool:
             '''Check that snake is in bounds and is not eating itself'''
             is_eaten = any(part.distance(self.snake.head) < self.step
                            for part in self.snake)
