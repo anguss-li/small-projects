@@ -1,5 +1,4 @@
 # SNAKE
-fix snake movement by dehardcoding distance snake moves (i.e. calculating it from screen size for a grid effect)
 add pause function
 make prettier - e.g. add border
 make themes selectable
