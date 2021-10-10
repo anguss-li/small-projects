@@ -255,7 +255,8 @@ class SnakeGame(object):
             sleep(self.delay)
 
 
-if __name__ == '__main__':
+def main():
+    '''Run gameplay loop.'''
     game = SnakeGame("Angus' Snake Game",
                      'MintCream',
                      'Courier',
@@ -264,3 +265,7 @@ if __name__ == '__main__':
                      0.125)
     game.initialize()
     game.play()
+
+
+if __name__ == '__main__':
+    main()
